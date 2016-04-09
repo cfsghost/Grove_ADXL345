@@ -104,6 +104,30 @@ void ADXL345::init() {
     setInterrupt( ADXL345_INT_INACTIVITY_BIT, 1);
 }
 
+double ADXL345::AxisDigitalAccelerometerReadX() {
+	double xyz[3];
+
+	getAcceleration(xyz);
+
+	return xyz[0];
+}
+
+double ADXL345::AxisDigitalAccelerometerReadY() {
+	double xyz[3];
+
+	getAcceleration(xyz);
+
+	return xyz[1];
+}
+
+double ADXL345::AxisDigitalAccelerometerReadZ() {
+	double xyz[3];
+
+	getAcceleration(xyz);
+
+	return xyz[2];
+}
+
 void ADXL345::powerOn() {
     Wire.begin();        // join i2c bus (address optional for master)
     //Turning on the ADXL345

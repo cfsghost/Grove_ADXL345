@@ -127,6 +127,9 @@ public:
     ADXL345(int addressMode);
 	void init();
     void powerOn();
+	double AxisDigitalAccelerometerReadX();
+	double AxisDigitalAccelerometerReadY();
+	double AxisDigitalAccelerometerReadZ();
     void readAccel(int* xyx);
     void readXYZ(int* x, int* y, int* z);
     void getAcceleration(double *xyz);
