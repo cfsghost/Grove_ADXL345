@@ -3,9 +3,9 @@
  * Library for accelerometer_ADXL345
  *
  * Copyright (c) 2013 seeed technology inc.
- * Author        :   FrankieChu 
+ * Copyright (c) 2016 Fred Chien <cfsghost@gmail.com>
+ * Author        :   Frankie Chu, Fred Chien 
  * Create Time   :   Jan 2013
- * Change Log    :
  *
  * The MIT License (MIT)
  *
@@ -38,10 +38,70 @@
 ADXL345::ADXL345() {
     status = ADXL345_OK;
     error_code = ADXL345_NO_ERROR;
+	deviceAddress = ADXL345_DEVICE;
     
     gains[0] = 0.00376390;
     gains[1] = 0.00376009;
     gains[2] = 0.00349265;
+}
+
+ADXL345::ADXL345(int addressMode) {
+    status = ADXL345_OK;
+    error_code = ADXL345_NO_ERROR;
+	deviceAddress = address[addressMode];
+    
+    gains[0] = 0.00376390;
+    gains[1] = 0.00376009;
+    gains[2] = 0.00349265;
+}
+
+void ADXL345::init() {
+	powerOn();
+
+    //set activity/ inactivity thresholds (0-255)
+    setActivityThreshold(75); //62.5mg per increment
+    setInactivityThreshold(75); //62.5mg per increment
+    setTimeInactivity(10); // how many seconds of no activity is inactive?
+
+    //look of activity movement on this axes - 1 == on; 0 == off
+    setActivityX(1);
+    setActivityY(1);
+    setActivityZ(1);
+
+    //look of inactivity movement on this axes - 1 == on; 0 == off
+    setInactivityX(1);
+    setInactivityY(1);
+    setInactivityZ(1);
+
+    //look of tap movement on this axes - 1 == on; 0 == off
+    setTapDetectionOnX(0);
+    setTapDetectionOnY(0);
+    setTapDetectionOnZ(1);
+
+    //set values for what is a tap, and what is a double tap (0-255)
+    setTapThreshold(50); //62.5mg per increment
+    setTapDuration(15); //625us per increment
+    setDoubleTapLatency(80); //1.25ms per increment
+    setDoubleTapWindow(200); //1.25ms per increment
+
+    //set values for what is considered freefall (0-255)
+    setFreeFallThreshold(7); //(5 - 9) recommended - 62.5mg per increment
+    setFreeFallDuration(45); //(20 - 70) recommended - 5ms per increment
+
+    //setting all interrupts to take place on int pin 1
+    //I had issues with int pin 2, was unable to reset it
+    setInterruptMapping( ADXL345_INT_SINGLE_TAP_BIT,   ADXL345_INT1_PIN );
+    setInterruptMapping( ADXL345_INT_DOUBLE_TAP_BIT,   ADXL345_INT1_PIN );
+    setInterruptMapping( ADXL345_INT_FREE_FALL_BIT,    ADXL345_INT1_PIN );
+    setInterruptMapping( ADXL345_INT_ACTIVITY_BIT,     ADXL345_INT1_PIN );
+    setInterruptMapping( ADXL345_INT_INACTIVITY_BIT,   ADXL345_INT1_PIN );
+
+    //register interrupt actions - 1 == on; 0 == off
+    setInterrupt( ADXL345_INT_SINGLE_TAP_BIT, 1);
+    setInterrupt( ADXL345_INT_DOUBLE_TAP_BIT, 1);
+    setInterrupt( ADXL345_INT_FREE_FALL_BIT,  1);
+    setInterrupt( ADXL345_INT_ACTIVITY_BIT,   1);
+    setInterrupt( ADXL345_INT_INACTIVITY_BIT, 1);
 }
 
 void ADXL345::powerOn() {
@@ -73,7 +133,7 @@ void ADXL345::getAcceleration(double *xyz){
 }
 // Writes val to address register on device
 void ADXL345::writeTo(byte address, byte val) {
-    Wire.beginTransmission(ADXL345_DEVICE); // start transmission to device 
+    Wire.beginTransmission(deviceAddress); // start transmission to device 
     Wire.write(address);             // send register address
     Wire.write(val);                 // send value to write
     Wire.endTransmission();         // end transmission
@@ -81,12 +141,12 @@ void ADXL345::writeTo(byte address, byte val) {
 
 // Reads num bytes starting from address register on device in to _buff array
 void ADXL345::readFrom(byte address, int num, byte _buff[]) {
-    Wire.beginTransmission(ADXL345_DEVICE); // start transmission to device 
+    Wire.beginTransmission(deviceAddress); // start transmission to device 
     Wire.write(address);             // sends address to read from
     Wire.endTransmission();         // end transmission
     
-    Wire.beginTransmission(ADXL345_DEVICE); // start transmission to device
-    Wire.requestFrom(ADXL345_DEVICE, num);    // request 6 bytes from device
+    Wire.beginTransmission(deviceAddress); // start transmission to device
+    Wire.requestFrom(deviceAddress, num);    // request 6 bytes from device
     
     int i = 0;
     while(Wire.available())         // device may send less than requested (abnormal)

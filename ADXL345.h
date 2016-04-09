@@ -119,8 +119,13 @@ public:
     // see error code for details
     byte error_code;       // Initial state
     double gains[3];        // counts to Gs
+	char address[2] = { 0x1D, 0x53 };
+	char deviceAddress;
+	int addressMode;
     
     ADXL345();
+    ADXL345(int addressMode);
+	void init();
     void powerOn();
     void readAccel(int* xyx);
     void readXYZ(int* x, int* y, int* z);
