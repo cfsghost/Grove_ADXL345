@@ -124,8 +124,7 @@ public:
 	int addressMode;
     
     ADXL345();
-    ADXL345(int addressMode);
-	void init();
+	void init(int addressMode);
     void powerOn();
 	double AxisDigitalAccelerometerReadX();
 	double AxisDigitalAccelerometerReadY();
